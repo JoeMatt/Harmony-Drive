@@ -6,7 +6,8 @@ import PackageDescription
 let package = Package(
     name: "Harmony-Drive",
     platforms: [
-        .iOS(.v12)
+        .iOS(.v13),
+        .macCatalyst(.v13)
     ],
     products: [
         .library(
@@ -27,7 +28,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/google/google-api-objectivec-client-for-rest.git", from: "3.0.0"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "7.0.0"),
-         .package(url: "https://github.com/JoeMatt/Harmony.git", from: "1.0.0")
+         .package(url: "https://github.com/JoeMatt/Harmony.git", from: "1.1.1")
 //        .package(path: "../Harmony")
     ],
     targets: [

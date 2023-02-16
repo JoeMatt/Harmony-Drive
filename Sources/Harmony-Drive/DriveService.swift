@@ -6,24 +6,23 @@
 //  Copyright © 2018 Riley Testut. All rights reserved.
 //
 
-import Foundation
 import CoreData
+import Foundation
 
 import Harmony
 
-import GTMSessionFetcherCore
+import GoogleAPIClientForREST_Drive
+import GoogleAPIClientForRESTCore
 import GoogleSignIn
 import GoogleSignInSwift
-import GoogleAPIClientForRESTCore
-import GoogleAPIClientForREST_Drive
+import GTMSessionFetcherCore
 
 let fileQueryFields = "id, mimeType, name, headRevisionId, modifiedTime, appProperties, size"
 let appDataFolder = "appDataFolder"
 
 private let kGoogleHTTPErrorDomain = "com.google.HTTPStatus"
 
-public class DriveService: NSObject, Service
-{
+public class DriveService: NSObject, Service {
     public static let shared = DriveService()
 
     public let localizedName = NSLocalizedString("Google Drive", comment: "")
@@ -41,32 +40,29 @@ public class DriveService: NSObject, Service
     }
 
     let service = GTLRDriveService()
-    
+
     private var authorizationCompletionHandlers = [(Result<Account, AuthenticationError>) -> Void]()
-    
+
     private weak var presentingViewController: UIViewController?
 
-    private override init()
-    {
+    override private init() {
         super.init()
-        self.service.shouldFetchNextPages = true
+        service.shouldFetchNextPages = true
     }
 
     private func updateScopes() {
         var scopes = GIDSignIn.sharedInstance.currentUser?.grantedScopes as? [String] ?? []
-        if !scopes.contains(kGTLRAuthScopeDriveAppdata)
-        {
+        if !scopes.contains(kGTLRAuthScopeDriveAppdata) {
             scopes.append(kGTLRAuthScopeDriveAppdata)
             GIDSignIn.sharedInstance.currentUser?.addScopes(scopes, presenting: presentingViewController!)
         }
     }
 }
 
-public extension DriveService
-{
+public extension DriveService {
     func authenticate(withPresentingViewController viewController: UIViewController, completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void)
     {
-        self.authorizationCompletionHandlers.append(completionHandler)
+        authorizationCompletionHandlers.append(completionHandler)
 
         GIDSignIn.sharedInstance.signIn(withPresenting: viewController,
                                         hint: nil,
@@ -77,7 +73,7 @@ public extension DriveService
 
     func authenticateInBackground(completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void)
     {
-        self.authorizationCompletionHandlers.append(completionHandler)
+        authorizationCompletionHandlers.append(completionHandler)
 
         // Must run on main thread.
         DispatchQueue.main.async {
@@ -94,62 +90,47 @@ public extension DriveService
     }
 }
 
-extension DriveService
-{
-    func process<T>(_ result: Result<T, Error>) throws -> T
-    {
-        do
-        {
-            do
-            {
+extension DriveService {
+    func process<T>(_ result: Result<T, Error>) throws -> T {
+        do {
+            do {
                 let value = try result.get()
                 return value
-            }
-            catch let error where error._domain == kGIDSignInErrorDomain
-            {
-                switch error._code
-                {
+            } catch let error where error._domain == kGIDSignInErrorDomain {
+                switch error._code {
                 case GIDSignInError.canceled.rawValue: throw GeneralError.cancelled
                 case GIDSignInError.hasNoAuthInKeychain.rawValue: throw AuthenticationError.noSavedCredentials
                 default: throw ServiceError(error)
                 }
-            }
-            catch let error where error._domain == kGTLRErrorObjectDomain || error._domain == kGoogleHTTPErrorDomain
+            } catch let error where error._domain == kGTLRErrorObjectDomain || error._domain == kGoogleHTTPErrorDomain
             {
-                switch error._code
-                {
+                switch error._code {
                 case 400, 401: throw AuthenticationError.tokenExpired
                 case 403: throw ServiceError.rateLimitExceeded
                 case 404: throw ServiceError.itemDoesNotExist
                 default: throw ServiceError(error)
                 }
-            }
-            catch
-            {
+            } catch {
                 throw ServiceError(error)
             }
-        }
-        catch let error as HarmonyError
-        {
+        } catch let error as HarmonyError {
             throw error
-        }
-        catch
-        {
+        } catch {
             assertionFailure("Non-HarmonyError thrown from DriveService.process(_:)")
             throw error
         }
     }
 }
 
-extension DriveService //GIDSignInDelegate
+public extension DriveService // GIDSignInDelegate
 {
-    public func sign(didSignInFor user: GIDGoogleUser?, withError error: Error?) {
+    func sign(didSignInFor user: GIDGoogleUser?, withError error: Error?) {
         let result: Result<Account, AuthenticationError>
 
         do {
-            let user = try self.process(Result(user, error))
+            let user = try process(Result(user, error))
 
-            self.service.authorizer = user.fetcherAuthorizer
+            service.authorizer = user.fetcherAuthorizer
 
             let name: String = user.profile?.name ?? ""
             let emailAddress: String = user.profile?.email ?? ""
@@ -161,8 +142,8 @@ extension DriveService //GIDSignInDelegate
 
         // Reset self.authorizationCompletionHandlers _before_ calling all the completion handlers.
         // This stops us from accidentally calling completion handlers twice in some instances.
-        let completionHandlers = self.authorizationCompletionHandlers
-        self.authorizationCompletionHandlers.removeAll()
+        let completionHandlers = authorizationCompletionHandlers
+        authorizationCompletionHandlers.removeAll()
 
         completionHandlers.forEach { $0(result) }
     }

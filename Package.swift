@@ -24,18 +24,20 @@ let package = Package(
             type: .static,
             targets: ["Harmony-Drive"]
         ),
+		.executable(name: "Harmony-DriveExample", targets: ["Harmony-DriveExample"])
     ],
     dependencies: [
         .package(url: "https://github.com/google/google-api-objectivec-client-for-rest.git", from: "3.0.0"),
         .package(url: "https://github.com/google/GoogleSignIn-iOS.git", from: "7.0.0"),
-         .package(url: "https://github.com/JoeMatt/Harmony.git", from: "1.1.1")
-//        .package(path: "../Harmony")
+//         .package(url: "https://github.com/JoeMatt/Harmony.git", from: "1.1.1")
+        .package(path: "../Harmony")
     ],
     targets: [
         .target(
-            name: "Harmony-Drive",
+            name: "Harmony-DriveExample",
             dependencies: [
                 "Harmony",
+				"HarmonyExample",
                 .product(name: "GoogleAPIClientForRESTCore", package: "google-api-objectivec-client-for-rest"),
                 .product(name: "GoogleAPIClientForREST_Drive", package: "google-api-objectivec-client-for-rest"),
                 .product(name: "GoogleSignInSwift", package: "GoogleSignIn-iOS")

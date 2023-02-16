@@ -42,9 +42,11 @@ public class DriveService: NSObject, Service {
     let service = GTLRDriveService()
 
     private var authorizationCompletionHandlers = [(Result<Account, AuthenticationError>) -> Void]()
-
-    private weak var presentingViewController: UIViewController?
-
+    #if canImport(UIKit)
+        private weak var presentingViewController: UIViewController?
+    #else
+        private weak var presentingViewController: NSWindow?
+    #endif
     override private init() {
         super.init()
         service.shouldFetchNextPages = true
@@ -54,21 +56,40 @@ public class DriveService: NSObject, Service {
         var scopes = GIDSignIn.sharedInstance.currentUser?.grantedScopes as? [String] ?? []
         if !scopes.contains(kGTLRAuthScopeDriveAppdata) {
             scopes.append(kGTLRAuthScopeDriveAppdata)
-            GIDSignIn.sharedInstance.currentUser?.addScopes(scopes, presenting: presentingViewController!)
+            #if canImport(UIKit)
+                GIDSignIn.sharedInstance.currentUser?.addScopes(scopes, presenting: presentingViewController!)
+            #else
+                GIDSignIn.sharedInstance.currentUser?.addScopes(scopes, presenting: presentingViewController!)
+            #endif
         }
     }
 }
 
 public extension DriveService {
-    func authenticate(withPresentingViewController viewController: UIViewController, completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
-        authorizationCompletionHandlers.append(completionHandler)
+    #if canImport(UIKit)
+        func authenticate(withPresentingViewController viewController: UIViewController, completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
+            authorizationCompletionHandlers.append(completionHandler)
 
-        GIDSignIn.sharedInstance.signIn(withPresenting: viewController,
-                                        hint: nil,
-                                        additionalScopes: nil) { signinResultMaybe, errorMaybe in
-            self.sign(didSignInFor: signinResultMaybe?.user, withError: errorMaybe)
+            GIDSignIn.sharedInstance.signIn(withPresenting: viewController,
+                                            hint: nil,
+                                            additionalScopes: nil) { signinResultMaybe, errorMaybe in
+                self.sign(didSignInFor: signinResultMaybe?.user, withError: errorMaybe)
+            }
         }
-    }
+    #else
+        func authenticate(completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
+            authorizationCompletionHandlers.append(completionHandler)
+            guard let presentingViewController = presentingViewController else {
+                completionHandler(.failure(AuthenticationError.notAuthenticated))
+                return
+            }
+            GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController,
+                                            hint: nil,
+                                            additionalScopes: nil) { signinResultMaybe, errorMaybe in
+                self.sign(didSignInFor: signinResultMaybe?.user, withError: errorMaybe)
+            }
+        }
+    #endif
 
     func authenticateInBackground(completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
         authorizationCompletionHandlers.append(completionHandler)

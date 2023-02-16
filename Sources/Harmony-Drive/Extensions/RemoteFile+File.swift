@@ -14,6 +14,7 @@ import Harmony
 import GoogleAPIClientForREST_Drive
 import GoogleAPIClientForRESTCore
 import GoogleSignIn
+import GoogleSignInSwift
 
 extension RemoteFile {
     convenience init?(file: GTLRDrive_File, context: NSManagedObjectContext) {

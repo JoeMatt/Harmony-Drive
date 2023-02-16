@@ -7,32 +7,35 @@
 //
 
 import CoreData
-import UIKit
 import Harmony
 import Harmony_Drive
-import Roxas
+import HarmonyExample
 
-extension ViewController {
+#if canImport(UIKit)
+    import Roxas
+    import UIKit
 
-	func authenticateTest() {
-		DriveService.shared.clientID = "1075055855134-qilcmemb9e2pngq0i1n0ptpsc0pq43vp.apps.googleusercontent.com"
+    extension HarmonyExample.ViewController {
+        func authenticateTest() {
+            DriveService.shared.clientID = "1075055855134-qilcmemb9e2pngq0i1n0ptpsc0pq43vp.apps.googleusercontent.com"
 
-		DriveService.shared.authenticateInBackground { result in
-			switch result {
-			case .success: print("Background authentication successful")
-			case let .failure(error): print(error.localizedDescription)
-			}
-		}
-	}
+            DriveService.shared.authenticateInBackground { result in
+                switch result {
+                case .success: print("Background authentication successful")
+                case let .failure(error): print(error.localizedDescription)
+                }
+            }
+        }
 
-	func authenticate(withPresentingViewController viewController: UIViewController) {
-		DriveService.shared.authenticate(withPresentingViewController: viewController) { result in
-			switch result {
-			case .success: print("Authentication successful")
-			case let .failure(error): print(error.localizedDescription)
-			}
-		}
-	}
+        func authenticate(withPresentingViewController viewController: UIViewController) {
+            DriveService.shared.authenticate(withPresentingViewController: viewController) { result in
+                switch result {
+                case .success: print("Authentication successful")
+                case let .failure(error): print(error.localizedDescription)
+                }
+            }
+        }
 
-	var service: Service { DriveService.shared }
-}
+        var service: any Service { DriveService.shared }
+    }
+#endif

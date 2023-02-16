@@ -60,8 +60,7 @@ public class DriveService: NSObject, Service {
 }
 
 public extension DriveService {
-    func authenticate(withPresentingViewController viewController: UIViewController, completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void)
-    {
+    func authenticate(withPresentingViewController viewController: UIViewController, completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
         authorizationCompletionHandlers.append(completionHandler)
 
         GIDSignIn.sharedInstance.signIn(withPresenting: viewController,
@@ -71,8 +70,7 @@ public extension DriveService {
         }
     }
 
-    func authenticateInBackground(completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void)
-    {
+    func authenticateInBackground(completionHandler: @escaping (Result<Account, AuthenticationError>) -> Void) {
         authorizationCompletionHandlers.append(completionHandler)
 
         // Must run on main thread.
@@ -83,8 +81,7 @@ public extension DriveService {
         }
     }
 
-    func deauthenticate(completionHandler: @escaping (Result<Void, DeauthenticationError>) -> Void)
-    {
+    func deauthenticate(completionHandler: @escaping (Result<Void, DeauthenticationError>) -> Void) {
         GIDSignIn.sharedInstance.signOut()
         completionHandler(.success)
     }
@@ -102,8 +99,7 @@ extension DriveService {
                 case GIDSignInError.hasNoAuthInKeychain.rawValue: throw AuthenticationError.noSavedCredentials
                 default: throw ServiceError(error)
                 }
-            } catch let error where error._domain == kGTLRErrorObjectDomain || error._domain == kGoogleHTTPErrorDomain
-            {
+            } catch let error where error._domain == kGTLRErrorObjectDomain || error._domain == kGoogleHTTPErrorDomain {
                 switch error._code {
                 case 400, 401: throw AuthenticationError.tokenExpired
                 case 403: throw ServiceError.rateLimitExceeded

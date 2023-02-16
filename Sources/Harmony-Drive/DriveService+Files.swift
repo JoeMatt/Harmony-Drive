@@ -16,8 +16,7 @@ import GoogleAPIClientForREST_Drive
 import GoogleAPIClientForRESTCore
 
 public extension DriveService {
-    func upload(_ file: File, for record: AnyRecord, metadata: [HarmonyMetadataKey: Any], context: NSManagedObjectContext, completionHandler: @escaping (Result<RemoteFile, FileError>) -> Void) -> Progress
-    {
+    func upload(_ file: File, for record: AnyRecord, metadata: [HarmonyMetadataKey: Any], context: NSManagedObjectContext, completionHandler: @escaping (Result<RemoteFile, FileError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
         progress.kind = .file
 
@@ -94,8 +93,7 @@ public extension DriveService {
         return progress
     }
 
-    func download(_ remoteFile: RemoteFile, completionHandler: @escaping (Result<File, FileError>) -> Void) -> Progress
-    {
+    func download(_ remoteFile: RemoteFile, completionHandler: @escaping (Result<File, FileError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
         progress.totalUnitCount = Int64(remoteFile.size)
         progress.kind = .file
@@ -133,8 +131,7 @@ public extension DriveService {
         return progress
     }
 
-    func delete(_ remoteFile: RemoteFile, completionHandler: @escaping (Result<Void, FileError>) -> Void) -> Progress
-    {
+    func delete(_ remoteFile: RemoteFile, completionHandler: @escaping (Result<Void, FileError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         let fileIdentifier = remoteFile.identifier

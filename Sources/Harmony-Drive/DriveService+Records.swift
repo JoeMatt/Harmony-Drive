@@ -15,8 +15,7 @@ import GoogleAPIClientForREST_Drive
 import GoogleAPIClientForRESTCore
 
 public extension DriveService {
-    func fetchAllRemoteRecords(context: NSManagedObjectContext, completionHandler: @escaping (Result<(Set<RemoteRecord>, Data), FetchError>) -> Void) -> Progress
-    {
+    func fetchAllRemoteRecords(context: NSManagedObjectContext, completionHandler: @escaping (Result<(Set<RemoteRecord>, Data), FetchError>) -> Void) -> Progress {
         var filesResult: Result<Set<RemoteRecord>, FetchError>?
         var tokenResult: Result<Data, FetchError>?
 
@@ -96,8 +95,7 @@ public extension DriveService {
         return progress
     }
 
-    func fetchChangedRemoteRecords(changeToken: Data, context: NSManagedObjectContext, completionHandler: @escaping (Result<(Set<RemoteRecord>, Set<String>, Data), FetchError>) -> Void) -> Progress
-    {
+    func fetchChangedRemoteRecords(changeToken: Data, context: NSManagedObjectContext, completionHandler: @escaping (Result<(Set<RemoteRecord>, Set<String>, Data), FetchError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {
@@ -126,8 +124,7 @@ public extension DriveService {
 
                             if isDeleted {
                                 deletedIDs.insert(identifier)
-                            } else if let file = change.file, let record = RemoteRecord(file: file, status: .updated, context: context)
-                            {
+                            } else if let file = change.file, let record = RemoteRecord(file: file, status: .updated, context: context) {
                                 updatedRecords.insert(record)
                             }
                         }
@@ -152,8 +149,7 @@ public extension DriveService {
 }
 
 public extension DriveService {
-    func upload(_ record: AnyRecord, metadata: [HarmonyMetadataKey: Any], context: NSManagedObjectContext, completionHandler: @escaping (Result<RemoteRecord, RecordError>) -> Void) -> Progress
-    {
+    func upload(_ record: AnyRecord, metadata: [HarmonyMetadataKey: Any], context: NSManagedObjectContext, completionHandler: @escaping (Result<RemoteRecord, RecordError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {
@@ -172,8 +168,7 @@ public extension DriveService {
 
                 let query: GTLRDriveQuery
 
-                if let identifier = managedRecord.remoteRecord?.identifier, managedRecord.remoteRecord?.status != .deleted
-                {
+                if let identifier = managedRecord.remoteRecord?.identifier, managedRecord.remoteRecord?.status != .deleted {
                     query = GTLRDriveQuery_FilesUpdate.query(withObject: file, fileId: identifier, uploadParameters: uploadParameters)
                 } else {
                     file.parents = [appDataFolder]
@@ -211,8 +206,7 @@ public extension DriveService {
         return progress
     }
 
-    func download(_ record: AnyRecord, version: Version, context: NSManagedObjectContext, completionHandler: @escaping (Result<LocalRecord, RecordError>) -> Void) -> Progress
-    {
+    func download(_ record: AnyRecord, version: Version, context: NSManagedObjectContext, completionHandler: @escaping (Result<LocalRecord, RecordError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {
@@ -249,8 +243,7 @@ public extension DriveService {
         return progress
     }
 
-    func delete(_ record: AnyRecord, completionHandler: @escaping (Result<Void, RecordError>) -> Void) -> Progress
-    {
+    func delete(_ record: AnyRecord, completionHandler: @escaping (Result<Void, RecordError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {
@@ -281,8 +274,7 @@ public extension DriveService {
         return progress
     }
 
-    func updateMetadata(_ metadata: [HarmonyMetadataKey: Any], for record: AnyRecord, completionHandler: @escaping (Result<Void, RecordError>) -> Void) -> Progress
-    {
+    func updateMetadata(_ metadata: [HarmonyMetadataKey: Any], for record: AnyRecord, completionHandler: @escaping (Result<Void, RecordError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {

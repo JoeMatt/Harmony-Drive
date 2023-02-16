@@ -16,8 +16,7 @@ import GoogleAPIClientForREST_Drive
 import GoogleAPIClientForRESTCore
 
 public extension DriveService {
-    func fetchVersions(for record: AnyRecord, completionHandler: @escaping (Result<[Version], RecordError>) -> Void) -> Progress
-    {
+    func fetchVersions(for record: AnyRecord, completionHandler: @escaping (Result<[Version], RecordError>) -> Void) -> Progress {
         let progress = Progress.discreteProgress(totalUnitCount: 1)
 
         do {
